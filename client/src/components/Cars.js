@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import API from './api/API';
+import API from '../api/API';
 import {Container, Table, Form, Col, FormLabel} from 'react-bootstrap';
 import { Multiselect } from 'react-widgets';
 import 'react-widgets/dist/css/react-widgets.css';

@@ -1,10 +1,10 @@
-import React, {useContext, useState} from 'react';
-import {AuthContext} from "./auth/authContext";
+import React, {useContext, useEffect, useState} from 'react';
+
 import {Redirect} from "react-router-dom";
 import {Container, Row, Col, Button, Alert, Form} from "react-bootstrap";
 
-function LoginPage() {
-    const context = useContext(AuthContext);
+function LoginPage(props) {
+    const context = props.value;
 
     const [user, setUser] = useState('');
     const [pwd, setPwd] = useState('');
@@ -17,7 +17,7 @@ function LoginPage() {
     }
 
     if(submitted)
-        return <Redirect to='/'/>;
+        return <Redirect to="/newrental"/>
     return <>
         <Container fluid>
             <Row>
@@ -40,7 +40,7 @@ function LoginPage() {
                         <Button variant="primary" type="submit">Login</Button>
                     </Form>
                     {context.authErr &&
-                        <Alert variant= "danger">{context.authErr.msg}</Alert>
+                        <Alert variant= "danger">{context.authErr.errors[0].msg}</Alert>
                     }
                 </Col>
             </Row>
