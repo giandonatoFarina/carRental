@@ -3,22 +3,21 @@ import Cars from "./Cars";
 import MyNavbar from "./Navbar";
 import {Redirect, Route,Link} from 'react-router-dom';
 import {Switch} from 'react-router';
-import API from "./API";
+import API from "./api/API";
 import {AuthContext} from './auth/authContext';
+import LoginPage from "./LoginPage";
 
 
 function App(props) {
-    const [logged, setLogged] = useState({});
-    const [authErr, setAuthErr] = useState({});
+    const [logged, setLogged] = useState(undefined);
+    const [authErr, setAuthErr] = useState(undefined);
 
     useEffect( ()=> {
-        API.isAuthenticated().then(
-            (user) => {
-                setLogged({authUser: user});
-            }
-        ).catch((err) => {
-            setAuthErr({authErr: err.errorObj});
-            props.history.push("/login");
+        API.isAuthenticated()
+            .then((user) => setLogged(user))
+            .catch((err) => {
+            setAuthErr(err.errorObj);
+            // props.history.push("/login");
         });
     });
 
@@ -42,6 +41,15 @@ function App(props) {
         });
     };
 
+    const handleErrors = (err) => {
+        if (err) {
+            if (err.status && err.status === 401) {
+                setAuthErr(err.errorObj);
+                // this.props.history.push("/login");
+            }
+        }
+    }
+
     const value = {
         authUser: logged,
         authErr: authErr,
@@ -53,10 +61,10 @@ function App(props) {
         <MyNavbar logged={logged}/>
         <Switch>
           <Route path="/login">
-
+              <LoginPage/>
           </Route>
           <Route path="/">
-              <Cars/>
+              <Cars handleErrors={handleErrors}/>
           </Route>
         </Switch>
     </AuthContext.Provider>;

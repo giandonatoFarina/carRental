@@ -1,14 +1,17 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import {Navbar, Nav} from "react-bootstrap";
 import {NavLink} from "react-router-dom";
+import {AuthContext} from "./auth/authContext";
 
 function MyNavbar(props) {
 
+    const value = useContext(AuthContext);
+
     return <Navbar bg="dark" variant="dark">
-        <Navbar.Brand href="#home">Car Rental</Navbar.Brand>
-        { (props. logged) ?
+        <Navbar.Brand as={NavLink} to="/">Car Rental</Navbar.Brand>
+        { (value.authUser) ?
             <Nav className="mr-auto">
-                <Nav.Link>New Rental</Nav.Link>
+                <Nav.Link >New Rental</Nav.Link>
                 <Nav.Link href="#features">Past Rentals</Nav.Link>
                 <Nav.Link href="#pricing">Future Rentals</Nav.Link>
             </Nav>
@@ -16,8 +19,8 @@ function MyNavbar(props) {
         }
         <Navbar.Collapse className="justify-content-end">
         {
-            (props.logged) ?
-                <Navbar.Text>Welcome, User!</Navbar.Text> :
+            (value.authUser) ?
+                <Navbar.Text>Welcome back, {value.authUser.name}!</Navbar.Text> :
                 <Nav className="float-right">
                     <Nav.Link as={NavLink} to="/login">Log In</Nav.Link>
                 </Nav>

@@ -3,7 +3,8 @@ const morgan = require('morgan'); // logging middleware
 const jwt = require('express-jwt');
 const jsonwebtoken = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
-const userDao = require('./user_dao');
+const userDao = require('./userDao');
+const carDao = require('./carDao');
 
 const PORT = 3001;
 app = new express();
@@ -25,7 +26,6 @@ app.use(express.json());
 app.post('/api/login', (req, res) => {
     const username = req.body.username;
     const password = req.body.password;
-
     userDao.getUser(username)
         .then((user) => {
             if(user === undefined) {
@@ -56,6 +56,27 @@ app.use(cookieParser());
 app.post('/api/logout', (req, res) => {
     res.clearCookie('token').end();
 });
+
+// Public APIs
+
+app.get('/api/cars', (req, res) => {
+   carDao.getCars()
+       .then((cars) => res.json(cars))
+       .catch((err) => res.status(500).json({errors: [{'msg': err}] }));
+});
+
+app.get('/api/categories', (req, res) => {
+    carDao.getCategories()
+        .then((categories) => res.json(categories))
+        .catch((err) => res.status(500).json({errors: [{'msg': err}] }));
+});
+
+app.get('/api/brands', (req, res) => {
+    carDao.getBrands()
+        .then((brands) => res.json(brands))
+        .catch((err) => res.status(500).json({errors: [{'msg': err}] }));
+});
+
 
 // For the rest of the code, all APIs require authentication
 app.use(

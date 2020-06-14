@@ -1,5 +1,9 @@
+import Car from "./Car";
+
+const baseURL = "/api";
+
 async function isAuthenticated(){
-    let url = "/api/user";
+    let url = baseURL + "/user";
     const response = await fetch(url);
     const userJson = await response.json();
     if(response.ok){
@@ -8,7 +12,7 @@ async function isAuthenticated(){
         let err = {status: response.status, errObj:userJson};
         throw err;  // An object with the error coming from the server
     }
-};
+}
 
 async function userLogin(username, password) {
     return new Promise((resolve, reject) => {
@@ -54,28 +58,35 @@ async function userLogout(username, password) {
 
 
 
-const cars = [
-    {id: 1, category: "A", brand: "Fiat", model: "Panda" },
-    {id: 2, category: "A", brand: "Fiat", model: "500" },
-    {id: 3, category: "A", brand: "Smart", model: "ForTwo" },
-    {id: 4, category: "B", brand: "Citroën", model: "C3" },
-    {id: 5, category: "B", brand: "Fiat", model: "Punto" },
-];
 
-const brands = [ "Fiat", "Smart", "Citroën" ];
-
-const categories = [ "A", "B" ];
-
-function getCars() {
-    return cars;
+async function getCars() {
+    const response = await fetch(baseURL + "/cars");
+    const carsJson = await response.json();
+    if(response.ok) return carsJson.map((c) => Car.from(c));
+    else {
+        let err = { status: response.status, errObj: carsJson };
+        throw err;
+    }
 }
 
-function getBrands() {
-    return brands;
+async function getBrands() {
+    const response = await fetch(baseURL + "/brands");
+    const brandsJson = await response.json();
+    if(response.ok) return brandsJson.map( (obj) => obj.brand);
+    else {
+        let err = { status: response.status, errObj: brandsJson };
+        throw err;
+    }
 }
 
-function getCategories() {
-    return categories;
+async  function getCategories() {
+    const response = await fetch(baseURL + "/categories");
+    const categoriesJson = await response.json();
+    if(response.ok) return categoriesJson.map( (obj) => obj.category );
+    else {
+        let err = { status: response.status, errObj:categoriesJson };
+        throw err;
+    }
 }
 
 const API = { isAuthenticated, userLogin, userLogout, getCars, getBrands, getCategories };
