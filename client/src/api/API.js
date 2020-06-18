@@ -54,11 +54,6 @@ async function userLogout(username, password) {
     });
 }
 
-
-
-
-
-
 async function getCars() {
     const response = await fetch(baseURL + "/cars");
     const carsJson = await response.json();
@@ -89,5 +84,24 @@ async  function getCategories() {
     }
 }
 
-const API = { isAuthenticated, userLogin, userLogout, getCars, getBrands, getCategories };
+async function getAvailableCars(params) {
+    const distance = { "50": 0, "150": 1, "unlimited": 2};
+
+    const response = await fetch(baseURL
+        +"/configurator?category="+params.category
+        +"&startingDay="+params.startingDay
+        +"&endDay="+params.endDay
+        +"&age="+params.age
+        +"&distance="+params.distance
+        +"&extraDrivers="+params.extraDrivers
+        +"&extraInsurance="+params.extraInsurance);
+    const responseJson = await response.json();
+    if(response.ok) return  responseJson;
+    else{
+        let err = { status: response.status, errObj:responseJson };
+        throw err;
+    }
+}
+
+const API = { isAuthenticated, userLogin, userLogout, getCars, getBrands, getCategories, getAvailableCars };
 export default API;

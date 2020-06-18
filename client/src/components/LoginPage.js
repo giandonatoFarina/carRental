@@ -4,7 +4,7 @@ import {Redirect} from "react-router-dom";
 import {Container, Row, Col, Button, Alert, Form} from "react-bootstrap";
 
 function LoginPage(props) {
-    const context = props.value;
+    const value = props.value;
 
     const [user, setUser] = useState('');
     const [pwd, setPwd] = useState('');
@@ -12,7 +12,7 @@ function LoginPage(props) {
 
     const handleSubmit = (event) => {
         event.preventDefault();
-        context.loginUser(user, pwd);
+        value.loginUser(user, pwd);
         setSubmitted(true);
     }
 
@@ -39,8 +39,8 @@ function LoginPage(props) {
 
                         <Button variant="primary" type="submit">Login</Button>
                     </Form>
-                    {context.authErr &&
-                        <Alert variant= "danger">{context.authErr.errors[0].msg}</Alert>
+                    {value.authErr &&
+                        <Alert variant= "danger">{value.authErr.errors[0].msg}</Alert>
                     }
                 </Col>
             </Row>

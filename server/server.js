@@ -5,6 +5,8 @@ const jsonwebtoken = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 const userDao = require('./userDao');
 const carDao = require('./carDao');
+const moment = require('moment');
+// const {check, validationResult} = require('express-validator');
 
 const PORT = 3001;
 app = new express();
@@ -12,7 +14,7 @@ app = new express();
 app.listen(PORT, ()=>console.log(`Server running on http://localhost:${PORT}/`));
 
 const jwtSecret = '6xvL4xkAAbG49hcXf5GIYSvkDICiUAR6EdR5dLdwW7hMzUjjMUe9t6M5kSAYxsvX';
-const expireTime = 300; //seconds
+const expireTime = 30*60; //300; //seconds
 // Authorization error
 const authErrorObj = { errors: [{  'param': 'Server', 'msg': 'Authorization error' }] };
 
@@ -104,6 +106,64 @@ app.get('/api/user', (req,res) => {
         }).catch(
         (err) => {
             res.status(401).json(authErrorObj);
-        }
-    );
+        });
 });
+
+// GET /configurator?parameters
+app.get('/api/configurator', (req, res) => {
+    const userId =  req.user && req.user.user;
+    // MANCA VALIDAZIONE DATI!!!
+    carDao.getAvailableCars(req.query)
+        .then( async (rows) => {
+            const price = await priceComputation(req.query, userId, rows.length);
+            res.json({
+                cars: rows.length,
+                carId: rows[0],
+                price: price
+            });
+        })
+        .catch((err) => res.status(500).json(err));
+});
+
+async function priceComputation(params, userId, remainingCars) {
+    const rate = { "A": 80, "B": 70, "C": 60, "D": 50, "E": 40 };
+    let m = 1;
+
+    const finishedRentals = await carDao.getFinishedRentals(userId);
+    if(finishedRentals >= 3) m -= 0.1;
+
+    console.log("noleggi precendeti = " + finishedRentals
+        + " => m = " + m );
+
+    const carsByCategory = await carDao.getCarsByCategory(params.category);
+    if(remainingCars/carsByCategory < 0.1) m += 0.1;
+
+    console.log("auto rimaste/totali = "+ remainingCars
+        + "/" + carsByCategory + " => m = " + m );
+
+    if(params.extraDrivers > 0) m += 0.15;
+
+    console.log("extra drivers = " + params.extraDrivers
+        + " => m = " + m );
+
+    if(params.extraInsurance === true) m += 0.2;
+
+    console.log("extra insurance = " + params.extraInsurance
+        + " => m = " + m );
+
+    if(params.distance === "50") m -= 0.05;        // less than 50 km/day
+    else if(params.distance === "unlimited") m += 0.05;   // unlimited km/day
+
+    console.log("distance = " + params.distance
+        + " => m = " + m );
+
+    if(params.age < 25) m += 0.05;              // age 18-25
+    else if(params.age > 65) m += 0.1;          // age 65+
+
+    console.log("age = " + params.age
+        + " => m = " + m );
+
+    // numero giorni
+    const days = moment(params.endDay).diff(moment(params.startingDay), 'days');
+    return rate[params.category] * days * m;
+}

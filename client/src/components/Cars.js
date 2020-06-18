@@ -34,29 +34,16 @@ function Cars(props){
 }
 
 function Filters(props) {
-    // list of all categories and brands
-    const [categories, setCategories] = useState([]);
-    const [brands, setBrands] = useState([]);
-
-    useEffect( () => {
-        API.getCategories()
-            .then( (categories) => setCategories(categories) )
-            .catch( (errorObj) => props.handleErrors(errorObj) );
-        API.getBrands()
-            .then( (brands) => setBrands(brands) )
-            .catch( (errorObj) => props.handleErrors(errorObj) );
-    }, []);
-
     return <Form style={{marginTop: 10}}>
         <Form.Row>
             <Col>
                 <FormLabel>Select Categories</FormLabel>
-                <Multiselect data={categories}
+                <Multiselect data={props.categories}
                              onChange={ (value) => props.setSelCategories(value) }/>
             </Col>
             <Col>
                 <FormLabel>Select Brands</FormLabel>
-                <Multiselect data={brands}
+                <Multiselect data={props.brands}
                              onChange={ (value) => props.setSelBrands(value) }/>
             </Col>
         </Form.Row>

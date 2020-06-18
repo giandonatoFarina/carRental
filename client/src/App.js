@@ -6,12 +6,25 @@ import {Switch} from 'react-router';
 import API from "./api/API";
 import LoginPage from "./components/LoginPage";
 import NewRental from "./components/NewRental";
+import RentalForm from "./components/NewRental";
 
 
 function App(props) {
     const [logged, setLogged] = useState(false);
     const [authUser, setAuthUser] = useState(undefined)
     const [authErr, setAuthErr] = useState(undefined);
+
+    const [categories, setCategories] = useState([]);
+    const [brands, setBrands] = useState([]);
+
+    useEffect( () => {
+        API.getCategories()
+            .then( (categories) => setCategories(categories) )
+            .catch( (errorObj) => props.handleErrors(errorObj) );
+        API.getBrands()
+            .then( (brands) => setBrands(brands) )
+            .catch( (errorObj) => props.handleErrors(errorObj) );
+    }, []);
 
     useEffect(() => {
         API.isAuthenticated()
@@ -69,10 +82,13 @@ function App(props) {
                 <LoginPage value={value}/>
             </Route>
             <Route path="/newrental">
-                <NewRental value={value}/>
+                <RentalForm value={value}
+                           categories={categories}/>
             </Route>
             <Route path="/">
-                <Cars handleErrors={handleErrors}/>
+                <Cars handleErrors={handleErrors}
+                      categories={categories}
+                      brands={brands}/>
             </Route>
         </Switch>
     </>;
