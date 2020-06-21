@@ -72,3 +72,25 @@ exports.getCarsByCategory = function (category) {
         });
     });
 }
+
+exports.insertRental = function (params) {
+    return new Promise((resolve, reject) => {
+        const sql = 'INSERT INTO rentals(cid, uid, startingDay, endDay, extraDrivers, extraInsurance, age, distance) VALUES(?, ?, DATE(?), DATE(?), ?, ?, ?, ?)';
+        db.run(sql, [
+            params.cid,
+            params.uid,
+            params.startingDay,
+            params.endDay,
+            params.extraDrivers,
+            params.extraInsurance,
+            params.age,
+            params.distance
+        ], (err) => {
+            if (err) {
+                reject(err);
+                return;
+            }
+            resolve();
+        });
+    });
+};

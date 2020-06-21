@@ -6,7 +6,7 @@ const cookieParser = require('cookie-parser');
 const userDao = require('./userDao');
 const carDao = require('./carDao');
 const moment = require('moment');
-// const {check, validationResult} = require('express-validator');
+const {check, validationResult} = require('express-validator');
 
 const PORT = 3001;
 app = new express();
@@ -110,9 +110,19 @@ app.get('/api/user', (req,res) => {
 });
 
 // GET /configurator?parameters
-app.get('/api/configurator', (req, res) => {
+app.get('/api/configurator', [
+    check('extraInsurance').isBoolean(),
+    check('age').isInt({min: 18}),
+    check('extraDrivers').isInt({min: 0}),
+    check('startingDay').isISO8601(),
+    check('endDay').isISO8601(),
+    check('category').isString(),
+    check('distance').isString()
+], (req, res) => {
+    const errors = validationResult(req);
+    if(!errors.isEmpty() || moment(req.query.endDay).isBefore(req.query.startingDay))
+        return res.status(422).json({errors: errors.array()});
     const userId =  req.user && req.user.user;
-    // MANCA VALIDAZIONE DATI!!!
     carDao.getAvailableCars(req.query)
         .then( async (rows) => {
             const price = await priceComputation(req.query, userId, rows.length);
@@ -125,6 +135,43 @@ app.get('/api/configurator', (req, res) => {
         .catch((err) => res.status(500).json(err));
 });
 
+// POST /newrental
+app.post('/api/newrental', [
+    // check rental data
+    check('extraInsurance').isBoolean(),
+    check('age').isInt({min: 18}),
+    check('extraDrivers').isInt({min: 0}),
+    check('startingDay').isISO8601(),
+    check('endDay').isISO8601(),
+    check('category').isString(),
+    check('distance').isString(),
+    check('carId').isInt(),
+    // check payment data
+    check('fullName').isString(),
+    check('cardNumber').isNumeric(),
+    check('cvv').isNumeric(),
+], (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty() || moment(req.body.endDay).isBefore(req.body.startingDay))
+        return res.status(422).json({errors: errors.array()});
+    const userId = req.user && req.user.user;
+    carDao.insertRental({
+        uid: userId,
+        cid: req.body.carId,
+        startingDay: req.body.startingDay,
+        endDay: req.body.endDay,
+        extraDrivers: req.body.extraDrivers,
+        extraInsurance: req.body.extraInsurance,
+        age: req.body.age,
+        distance: req.body.distance
+    })
+        .then( () => res.status(201).end() )
+        .catch((err) => {
+            res.status(500).json({errors: [{'param': 'Server', 'msg': err}],})
+        });
+});
+
+
 async function priceComputation(params, userId, remainingCars) {
     const rate = { "A": 80, "B": 70, "C": 60, "D": 50, "E": 40 };
     let m = 1;
@@ -132,36 +179,18 @@ async function priceComputation(params, userId, remainingCars) {
     const finishedRentals = await carDao.getFinishedRentals(userId);
     if(finishedRentals >= 3) m -= 0.1;
 
-    console.log("noleggi precendeti = " + finishedRentals
-        + " => m = " + m );
-
     const carsByCategory = await carDao.getCarsByCategory(params.category);
     if(remainingCars/carsByCategory < 0.1) m += 0.1;
 
-    console.log("auto rimaste/totali = "+ remainingCars
-        + "/" + carsByCategory + " => m = " + m );
-
     if(params.extraDrivers > 0) m += 0.15;
 
-    console.log("extra drivers = " + params.extraDrivers
-        + " => m = " + m );
-
-    if(params.extraInsurance === true) m += 0.2;
-
-    console.log("extra insurance = " + params.extraInsurance
-        + " => m = " + m );
+    if(params.extraInsurance === "true") m += 0.2;
 
     if(params.distance === "50") m -= 0.05;        // less than 50 km/day
     else if(params.distance === "unlimited") m += 0.05;   // unlimited km/day
 
-    console.log("distance = " + params.distance
-        + " => m = " + m );
-
     if(params.age < 25) m += 0.05;              // age 18-25
     else if(params.age > 65) m += 0.1;          // age 65+
-
-    console.log("age = " + params.age
-        + " => m = " + m );
 
     // numero giorni
     const days = moment(params.endDay).diff(moment(params.startingDay), 'days');

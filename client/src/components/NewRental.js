@@ -1,95 +1,8 @@
-import React, {useContext, useEffect, useState} from 'react';
-import {Container, Form, Col, Button} from "react-bootstrap";
+import React, {useState} from 'react';
+import {Container, Form, Col, Button, Modal} from "react-bootstrap";
 import {Redirect} from "react-router";
 import API from "../api/API";
-
-
-// function NewRental(props){
-//     // form parameters
-//     const [startingDay, setStartingDay] = useState("");
-//     const [endDay, setEndDay] = useState("");
-//     const [category, setCategory] = useState("");
-//     const [age, setAge] = useState("");
-//     const [distance, setDistance] = useState("");
-//     const [extraDrivers, setExtraDrivers] = useState(false);
-//     const [extraInsurance, setExtraInsurance] = useState(false);
-//     // returned values
-//     const [cars, setCars] = useState(undefined);
-//     const [price, setPrice] = useState(undefined);
-//
-//
-//     const value = props.value;
-//     const handleSubmit = (event) => {
-//         event.preventDefault();
-//         console.log(startingDay + " " + endDay + " " + category + " " + age + " " + distance + " " + extraDrivers + " " + extraInsurance);
-//        // apertura modal con form di pagamento
-//     };
-//     // parameters: starting day, end day, car category, driver's age, #extra drivers, km/day, extra insurance
-//     return <Container fluid>
-//         {value.authErr && <Redirect to = "/login"/>}
-//
-//         <Form method="POST" onSubmit={ (event) => handleSubmit(event)}>
-//             <Form.Row style={{marginTop: 10}}>
-//                 <Col>
-//                     <Form.Label>Starting Day</Form.Label>
-//                     <Form.Control type="date" name="startingDay" value = {startingDay} onChange={(ev) => setStartingDay(ev.target.value)}/>
-//                 </Col>
-//                 <Col>
-//                     <Form.Label>End Day</Form.Label>
-//                     <Form.Control type="date" name="endDay" value = {endDay} onChange={(ev) => setEndDay(ev.target.value)}/>
-//                 </Col>
-//             </Form.Row>
-//             <Form.Row style={{marginTop: 10}}>
-//                 <Col>
-//                     <Form.Label>Category</Form.Label>
-//                     <Form.Control as="select" name="category" value = {category} onChange={(ev) => setCategory(ev.target.value)}>
-//                         {props.categories.map( (c) => <option>{c}</option>)};
-//                     </Form.Control>
-//                 </Col>
-//                 <Col>
-//                     <Form.Label>Driver's Age</Form.Label>
-//                     <Form.Control as="select" name="age" value = {age} onChange={(ev) => setAge(ev.target.value)}>
-//                         <option>{"18-24"}</option>
-//                         <option>{"25-65"}</option>
-//                         <option>{"66+"}</option>
-//                     </Form.Control>
-//                 </Col>
-//                 <Col>
-//                     <Form.Label>Estimated km/day</Form.Label>
-//                     <Form.Control as="select" name="km" value = {distance}
-//                                   onChange={(ev) => setDistance(ev.target.value)}>
-//                         <option>{"50"}</option>
-//                         <option>{"150"}</option>
-//                         <option>{"unlimited"}</option>
-//                     </Form.Control>
-//                 </Col>
-//             </Form.Row>
-//             <Form.Row style={{marginTop: 10}}>
-//                 <Col>
-//                     <Form.Check type="checkbox" name="extra-drivers" label="More than one driver"
-//                                 value={extraDrivers}
-//                                 onChange={(ev) => setExtraDrivers(ev.target.value)}/>
-//                 </Col>
-//                 <Col>
-//                     <Form.Check type="checkbox" name="extra-insurance" label="Extra insurance"
-//                                 value={extraInsurance}
-//                                 onChange={(ev) => setExtraInsurance(ev.target.value)}/>
-//                 </Col>
-//             </Form.Row>
-//             <Form.Row style={{marginTop: 10}}>
-//                 <Col>
-//                     <h5>Available cars: </h5>
-//                 </Col>
-//                 <Col>
-//                     <h5>Price: </h5>
-//                 </Col>
-//                 <Col>
-//                     <Button className="float-right" type="submit">Rent</Button>
-//                 </Col>
-//             </Form.Row>
-//         </Form>
-//     </Container>
-// }
+import moment from "moment";
 
 class RentalForm extends React.Component {
     constructor(props) {
@@ -97,30 +10,38 @@ class RentalForm extends React.Component {
         this.state = {
             startingDay: "",
             endDay: "",
-            category: "",
+            category: "A",
             age: undefined,
-            distance: "",
+            distance: "50",
             extraDrivers: 0,
             extraInsurance: false,
             cars: undefined,
             price: undefined,
-            carId: undefined
+            carId: undefined,
+            showModal: false
         };
+    }
+
+    handleShow = () => {
+        const show = !this.state.showModal;
+        this.setState({showModal: show});
     }
 
     handleSubmit = (event) => {
         event.preventDefault();
-        // Apertura modal per pagamento
+        this.handleShow();
     }
 
     updateField = (name, value) => {
         this.setState({[name]: value}, async () => {
-            // fare query solo se tutti i parametri obbligatori inseriti
+            // call API only if mandatory params are insert
             if(this.state.startingDay && this.state.endDay &&
-                this.state.category && this.state.age && this.state.distance)
-                    API.getAvailableCars(this.state).then(
-                        (res) => this.setState({cars: res.cars, price: res.price, carId: res.carId})
-                    )
+                this.state.category && this.state.age && this.state.distance &&
+                moment(this.state.endDay).isAfter(this.state.startingDay))
+                    API.getAvailableCars(this.state)
+                        .then((res) => this.setState({cars: res.cars, price: res.price, carId: res.carId}))
+                        .catch(() => this.setState({cars: undefined, price: undefined, carId: undefined}));
+            else this.setState({cars: undefined, price: undefined, carId: undefined});
         });
     }
 
@@ -132,12 +53,16 @@ class RentalForm extends React.Component {
                 <Form.Row style={{marginTop: 10}}>
                     <Col>
                         <Form.Label>Starting Day</Form.Label>
-                        <Form.Control type="date" name="startingDay" value={this.state.startingDay}
+                        <Form.Control type="date" name="startingDay"
+                                      min={moment().format("YYYY-MM-DD")}
+                                      value={this.state.startingDay}
                                       onChange={(ev) => this.updateField(ev.target.name, ev.target.value)}/>
                     </Col>
                     <Col>
                         <Form.Label>End Day</Form.Label>
-                        <Form.Control type="date" name="endDay" value={this.state.endDay}
+                        <Form.Control type="date" name="endDay"
+                                      min={moment().add(1, 'd').format("YYYY-MM-DD")}
+                                      value={this.state.endDay}
                                       onChange={(ev) => this.updateField(ev.target.name, ev.target.value)}/>
                     </Col>
                 </Form.Row>
@@ -165,7 +90,7 @@ class RentalForm extends React.Component {
                     </Col>
                     <Col>
                         <Form.Label>Extra Drivers</Form.Label>
-                        <Form.Control type="number" name="extraDrivers"
+                        <Form.Control type="number" name="extraDrivers" min="0"
                                       value={this.state.extraDrivers}
                                       onChange={(ev) => this.updateField(ev.target.name, ev.target.value)}/>
                     </Col>
@@ -173,8 +98,8 @@ class RentalForm extends React.Component {
                 <Form.Row style={{marginTop: 10}}>
                     <Col>
                         <Form.Check type="checkbox" name="extraInsurance" label="Extra insurance"
-                                    value={this.state.extraInsurance}
-                                    onChange={(ev) => this.updateField(ev.target.name, ev.target.value)}/>
+                                    checked={this.state.extraInsurance}
+                                    onChange={(ev) => this.updateField(ev.target.name, ev.target.checked)}/>
                     </Col>
                 </Form.Row>
                 <Form.Row style={{marginTop: 10}}>
@@ -182,18 +107,94 @@ class RentalForm extends React.Component {
                         <h5>Available cars: {this.state.cars ? this.state.cars : "-"}</h5>
                     </Col>
                     <Col>
-                        <h5>Price: {this.state.price ? this.state.price : "-"} €/day</h5>
+                        <h5>Price: {this.state.price ? this.state.price : "-"} €</h5>
                     </Col>
                     <Col>
                         <Button className="float-right" type="submit">Rent</Button>
                     </Col>
                 </Form.Row>
             </Form>
+            <MyModal show={this.state.showModal}
+                     handleShow={this.handleShow}
+                     rentalData={this.state}/>
         </Container>
     }
 
 }
 
+function MyModal(props) {
+    return <Modal
+        show={props.show} onHide={props.handleShow} size="lg"
+        aria-labelledby="contained-modal-title-vcenter"
+        centered>
+        <Modal.Header closeButton>
+            <Modal.Title id="contained-modal-title-vcenter">
+                Payment
+            </Modal.Title>
+        </Modal.Header>
+        <PaymentForm {...props}/>
+    </Modal>
+}
 
+function PaymentForm(props) {
+    const [submitted,setSubmitted] = useState(false);
+
+    const [fullName, setFullName] = useState("");
+    const [cardNumber, setCardNumber] = useState("");
+    const [cvv, setCvv] = useState("");
+
+    const handleSubmit = (ev) => {
+        ev.preventDefault();
+        const payload = {
+            // Payment data
+            fullName: fullName,
+            cardNumber: cardNumber,
+            cvv: cvv,
+            // Rental Data
+            carId: props.rentalData.carId.id,
+            startingDay: props.rentalData.startingDay,
+            endDay: props.rentalData.endDay,
+            extraDrivers: props.rentalData.extraDrivers,
+            extraInsurance: props.rentalData.extraInsurance,
+            age: props.rentalData.age,
+            distance: props.rentalData.distance,
+            category: props.rentalData.category
+        };
+        console.log(payload);
+        API.insertRental(payload)
+            .then( () => setSubmitted(true) )
+            .catch( () => {} );
+    };
+
+    if(submitted)
+        return <Redirect to="/futuresrentals"/>;
+
+    return <Form method="POST" onSubmit={ (event) => handleSubmit(event)}>
+        <Modal.Body>
+            <Form.Row>
+                <Form.Label>Card Number</Form.Label>
+                <Form.Control type="text" name="cardNumber" value={cardNumber}
+                              onChange={(ev) => setCardNumber(ev.target.value)}/>
+            </Form.Row>
+            <Form.Row style={{marginTop: 10}}>
+                <Col>
+                    <Form.Label>Full Name</Form.Label>
+                    <Form.Control type="text" name="fullName" value={fullName}
+                                  onChange={(ev) => setFullName(ev.target.value)}/>
+                </Col>
+                <Col>
+                    <Form.Label>CVV</Form.Label>
+                    <Form.Control type="text" name="cvv" value={cvv}
+                                  onChange={(ev) => setCvv(ev.target.value)}/>
+                </Col>
+            </Form.Row>
+        </Modal.Body>
+        <Modal.Footer>
+            <Button variant="secondary" className="float-right"
+                    onClick={props.handleShow}>Cancel</Button>
+            <Button className="float-right" type="submit">Pay</Button>
+        </Modal.Footer>
+    </Form>
+}
 
 export default RentalForm;
