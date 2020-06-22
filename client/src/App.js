@@ -1,12 +1,12 @@
 import React, {useEffect, useState} from 'react';
 import Cars from "./components/Cars";
 import MyNavbar from "./components/Navbar";
-import {Redirect, Route,Link} from 'react-router-dom';
+import {Redirect, Route, Link} from 'react-router-dom';
 import {Switch} from 'react-router';
 import API from "./api/API";
 import LoginPage from "./components/LoginPage";
-import NewRental from "./components/NewRental";
 import RentalForm from "./components/NewRental";
+import PastRentalsTable from "./components/PastRentals";
 
 
 function App(props) {
@@ -32,10 +32,7 @@ function App(props) {
                 setAuthUser(user);
                 setLogged(true);
             })
-            .catch((err) => {
-            setAuthErr(err.errObj);
-            // props.history.push("/login");
-        });
+            .catch((err) => setAuthErr(err.errObj));
     }, []);
 
     const login = (usr, pwd) => {
@@ -60,13 +57,11 @@ function App(props) {
     };
 
     const handleErrors = (err) => {
-        if (err) {
-            if (err.status && err.status === 401) {
+        if (err)
+            if (err.status && err.status === 401)
                 setAuthErr(err.errObj);
-                // this.props.history.push("/login");
-            }
-        }
     }
+
 
     const value = {
         authUser: authUser,
@@ -84,6 +79,9 @@ function App(props) {
             <Route path="/newrental">
                 <RentalForm value={value}
                            categories={categories}/>
+            </Route>
+            <Route path="/pastrentals">
+                <PastRentalsTable value={value}/>
             </Route>
             <Route path="/">
                 <Cars handleErrors={handleErrors}

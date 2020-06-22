@@ -103,6 +103,19 @@ async function getAvailableCars(params) {
     }
 }
 
+async function payment(params){
+    const response = await fetch(baseURL + "/payment", {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(params),
+    });
+    if(response.ok) return null;
+    else {
+        let err = { status: response.status, errObj:response };
+        throw err;
+    }
+}
+
 async function insertRental(params) {
     return new Promise((resolve, reject) => {
         fetch(baseURL + "/newrental", {
@@ -122,5 +135,15 @@ async function insertRental(params) {
     });
 }
 
-const API = { isAuthenticated, userLogin, userLogout, getCars, getBrands, getCategories, getAvailableCars, insertRental };
+async  function getPastRentals() {
+    const response = await fetch(baseURL + "/pastrentals");
+    const rentalsJson = await response.json();
+    if(response.ok) return rentalsJson;
+    else {
+        let err = { status: response.status, errObj:rentalsJson };
+        throw err;
+    }
+}
+
+const API = { isAuthenticated, userLogin, userLogout, getCars, getBrands, getCategories, getAvailableCars, payment, insertRental, getPastRentals };
 export default API;

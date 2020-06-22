@@ -135,6 +135,18 @@ app.get('/api/configurator', [
         .catch((err) => res.status(500).json(err));
 });
 
+// POST /payment
+app.post('/api/payment', [
+    check('fullName').isString(),
+    check('cardNumber').isNumeric(),
+    check('cvv').isNumeric(),
+], (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty())
+        return res.status(422).json({errors: errors.array()});
+    else res.status(200).end();
+});
+
 // POST /newrental
 app.post('/api/newrental', [
     // check rental data
@@ -146,10 +158,6 @@ app.post('/api/newrental', [
     check('category').isString(),
     check('distance').isString(),
     check('carId').isInt(),
-    // check payment data
-    check('fullName').isString(),
-    check('cardNumber').isNumeric(),
-    check('cvv').isNumeric(),
 ], (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty() || moment(req.body.endDay).isBefore(req.body.startingDay))
@@ -169,6 +177,13 @@ app.post('/api/newrental', [
         .catch((err) => {
             res.status(500).json({errors: [{'param': 'Server', 'msg': err}],})
         });
+});
+
+app.get('/api/pastrentals', (req,res) => {
+    const uid = req.user && req.user.user;
+    carDao.getPastRentals(uid)
+        .then((rentals) => res.json(rentals))
+        .catch((err) => res.status(500).json({errors: [{'msg': err}] }));
 });
 
 
@@ -196,3 +211,4 @@ async function priceComputation(params, userId, remainingCars) {
     const days = moment(params.endDay).diff(moment(params.startingDay), 'days');
     return rate[params.category] * days * m;
 }
+

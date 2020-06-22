@@ -11,7 +11,7 @@ function MyNavbar(props) {
         { (value.authUser) ?
             <Nav className="mr-auto">
                 <Nav.Link as={NavLink} to="/newrental">New Rental</Nav.Link>
-                <Nav.Link href="#features">Past Rentals</Nav.Link>
+                <Nav.Link as={NavLink} to="/pastrentals">Past Rentals</Nav.Link>
                 <Nav.Link href="#pricing">Future Rentals</Nav.Link>
             </Nav>
             : undefined

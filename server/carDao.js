@@ -94,3 +94,13 @@ exports.insertRental = function (params) {
         });
     });
 };
+
+exports.getPastRentals = function (uid) {
+    return new Promise((resolve, reject) => {
+        const sql = "SELECT * from rentals as r, cars as c WHERE r.cid == c.id AND uid == ? AND DATE(endDay) < CURRENT_DATE";
+        db.all(sql, [uid], (err, rows) => {
+            if(err) reject(err);
+            else resolve(rows);
+        });
+    });
+}

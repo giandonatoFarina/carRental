@@ -39,7 +39,7 @@ class RentalForm extends React.Component {
                 this.state.category && this.state.age && this.state.distance &&
                 moment(this.state.endDay).isAfter(this.state.startingDay))
                     API.getAvailableCars(this.state)
-                        .then((res) => this.setState({cars: res.cars, price: res.price, carId: res.carId}))
+                        .then((res) => this.setState({cars: res.cars, price: res.price, carId: res.carId.id}))
                         .catch(() => this.setState({cars: undefined, price: undefined, carId: undefined}));
             else this.setState({cars: undefined, price: undefined, carId: undefined});
         });
@@ -145,24 +145,15 @@ function PaymentForm(props) {
 
     const handleSubmit = (ev) => {
         ev.preventDefault();
-        const payload = {
-            // Payment data
+        API.payment({
             fullName: fullName,
             cardNumber: cardNumber,
             cvv: cvv,
-            // Rental Data
-            carId: props.rentalData.carId.id,
-            startingDay: props.rentalData.startingDay,
-            endDay: props.rentalData.endDay,
-            extraDrivers: props.rentalData.extraDrivers,
-            extraInsurance: props.rentalData.extraInsurance,
-            age: props.rentalData.age,
-            distance: props.rentalData.distance,
-            category: props.rentalData.category
-        };
-        console.log(payload);
-        API.insertRental(payload)
-            .then( () => setSubmitted(true) )
+        }).then( () => {
+            API.insertRental(props.rentalData)
+                .then( () => setSubmitted(true) )
+                .catch( () => {} );
+        })
             .catch( () => {} );
     };
 
