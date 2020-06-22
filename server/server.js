@@ -186,6 +186,22 @@ app.get('/api/pastrentals', (req,res) => {
         .catch((err) => res.status(500).json({errors: [{'msg': err}] }));
 });
 
+app.get('/api/futurerentals', (req,res) => {
+    const uid = req.user && req.user.user;
+    carDao.getFutureRentals(uid)
+        .then((rentals) => res.json(rentals))
+        .catch((err) => res.status(500).json({errors: [{'msg': err}] }));
+});
+
+app.delete('/api/rental',(req,res) => {
+    const uid = req.user && req.user.user;
+    carDao.deleteRental(uid, req.query.carId, req.query.startingDay)
+        .then((result) => res.status(204).end())
+        .catch((err) => res.status(500).json({
+            errors: [{'param': 'Server', 'msg': err}],
+        }));
+});
+
 
 async function priceComputation(params, userId, remainingCars) {
     const rate = { "A": 80, "B": 70, "C": 60, "D": 50, "E": 40 };

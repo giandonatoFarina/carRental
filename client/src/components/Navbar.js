@@ -12,7 +12,7 @@ function MyNavbar(props) {
             <Nav className="mr-auto">
                 <Nav.Link as={NavLink} to="/newrental">New Rental</Nav.Link>
                 <Nav.Link as={NavLink} to="/pastrentals">Past Rentals</Nav.Link>
-                <Nav.Link href="#pricing">Future Rentals</Nav.Link>
+                <Nav.Link as={NavLink} to="/futurerentals">Future Rentals</Nav.Link>
             </Nav>
             : undefined
         }

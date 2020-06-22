@@ -103,4 +103,25 @@ exports.getPastRentals = function (uid) {
             else resolve(rows);
         });
     });
+};
+
+exports.getFutureRentals = function (uid) {
+    return new Promise((resolve, reject) => {
+        const sql = "SELECT * from rentals as r, cars as c WHERE r.cid == c.id AND uid == ? AND DATE(endDay) >= CURRENT_DATE";
+        db.all(sql, [uid], (err, rows) => {
+            if(err) reject(err);
+            else resolve(rows);
+        });
+    });
+};
+
+exports.deleteRental = function(uid, cid, startingDay) {
+    return new Promise((resolve, reject) => {
+        console.log(uid)
+        const sql = 'DELETE FROM rentals WHERE uid = ? AND cid = ? AND startingDay = ?';
+        db.run(sql, [uid, cid,startingDay], (err) => {
+            if(err) reject(err);
+            else resolve(null);
+        })
+    });
 }

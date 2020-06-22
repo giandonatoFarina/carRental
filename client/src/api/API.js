@@ -145,5 +145,31 @@ async  function getPastRentals() {
     }
 }
 
-const API = { isAuthenticated, userLogin, userLogout, getCars, getBrands, getCategories, getAvailableCars, payment, insertRental, getPastRentals };
+async  function getFutureRentals() {
+    const response = await fetch(baseURL + "/futurerentals");
+    const rentalsJson = await response.json();
+    if(response.ok) return rentalsJson;
+    else {
+        let err = { status: response.status, errObj:rentalsJson };
+        throw err;
+    }
+}
+
+async function deleteRental(carId, startingDay) {
+    return new Promise((resolve, reject) => {
+        fetch(baseURL + "/rental?carId=" + carId + "&startingDay=" + startingDay, {
+            method: 'DELETE'
+        }).then( (response) => {
+            if(response.ok) {resolve(null);
+            } else {
+                // analyze the cause of error
+                response.json()
+                    .then( (obj) => {reject(obj);} ) // error msg in the response body
+                    .catch( (err) => {reject({ errors: [{ param: "Application", msg: "Cannot parse server response" }] }) }); // something else
+            }
+        }).catch( (err) => {reject({ errors: [{ param: "Server", msg: "Cannot communicate" }] }) }); // connection errors
+    });
+}
+
+const API = { isAuthenticated, userLogin, userLogout, getCars, getBrands, getCategories, getAvailableCars, payment, insertRental, getPastRentals, getFutureRentals, deleteRental };
 export default API;

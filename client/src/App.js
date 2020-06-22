@@ -7,7 +7,7 @@ import API from "./api/API";
 import LoginPage from "./components/LoginPage";
 import RentalForm from "./components/NewRental";
 import PastRentalsTable from "./components/PastRentals";
-
+import FutureRentalsTable from "./components/FutureRentals";
 
 function App(props) {
     const [logged, setLogged] = useState(false);
@@ -82,6 +82,9 @@ function App(props) {
             </Route>
             <Route path="/pastrentals">
                 <PastRentalsTable value={value}/>
+            </Route>
+            <Route path="/futurerentals">
+                <FutureRentalsTable value={value}/>
             </Route>
             <Route path="/">
                 <Cars handleErrors={handleErrors}
