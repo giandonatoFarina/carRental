@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import API from '../api/API';
-import {Container, Table, Form, Col, FormLabel} from 'react-bootstrap';
+import {Container, Table, Form, Col, FormLabel, Alert} from 'react-bootstrap';
 import { Multiselect } from 'react-widgets';
 import 'react-widgets/dist/css/react-widgets.css';
 
@@ -9,6 +9,7 @@ function Cars(props){
     const [selBrands, setSelBrands] = useState([]);
     const [selCategories, setSelCategories] = useState([]);
     const [cars, setCars] = useState([]);
+    const [error, setError] = useState(undefined);
 
     const carsToShow = () => {
         API.getCars()
@@ -19,11 +20,18 @@ function Cars(props){
                 if(selBrands.length)
                     newCars = newCars.filter( (c) => selBrands.includes(c.brand) );
                 setCars(newCars);
+                setError(undefined);
             })
-            .catch( (errorObj) => props.handleErrors(errorObj) );
+            .catch( (err) => {
+                props.value.handleErrors(err);
+                setError(err.errObj.errors[0])
+            });
     };
 
     useEffect(() => carsToShow(), [selBrands, selCategories]);
+
+    if(error)
+        return <Alert variant= "danger">{error.msg}</Alert>;
 
     return <Container fluid>
             <Filters {...props}

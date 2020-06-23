@@ -26,7 +26,7 @@ exports.getUser = function (email) {
             else if (rows.length === 0)
                 resolve(undefined);
             else{
-                console.log(rows[0]);
+                // console.log(rows[0]);
                 const user = createUser(rows[0]);
                 resolve(user);
             }

@@ -1,5 +1,4 @@
-import React, {useContext, useEffect, useState} from 'react';
-
+import React, {useState} from 'react';
 import {Redirect} from "react-router-dom";
 import {Container, Row, Col, Button, Alert, Form} from "react-bootstrap";
 
@@ -8,15 +7,13 @@ function LoginPage(props) {
 
     const [user, setUser] = useState('');
     const [pwd, setPwd] = useState('');
-    const [submitted, setSubmitted] = useState(false);
 
     const handleSubmit = (event) => {
         event.preventDefault();
         value.loginUser(user, pwd);
-        setSubmitted(true);
     }
 
-    if(submitted)
+    if(value.logged)
         return <Redirect to="/newrental"/>
     return <>
         <Container fluid>
@@ -40,7 +37,7 @@ function LoginPage(props) {
                         <Button variant="primary" type="submit">Login</Button>
                     </Form>
                     {value.authErr &&
-                        <Alert variant= "danger">{value.authErr.errors[0].msg}</Alert>
+                        <Alert variant= "danger">{value.authErr.msg}</Alert>
                     }
                 </Col>
             </Row>

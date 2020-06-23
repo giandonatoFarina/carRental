@@ -1,10 +1,15 @@
 import React from 'react';
-import {Navbar, Nav} from "react-bootstrap";
+import {Navbar, Nav, Button} from "react-bootstrap";
 import {NavLink} from "react-router-dom";
 
 function MyNavbar(props) {
 
     const value = props.value;
+
+    const clickHandler = () => {
+        if(value.authUser)
+            value.logoutUser();
+    }
 
     return <Navbar bg="dark" variant="dark">
         <Navbar.Brand as={NavLink} to="/">Car Rental</Navbar.Brand>
@@ -17,16 +22,14 @@ function MyNavbar(props) {
             : undefined
         }
         <Navbar.Collapse className="justify-content-end">
-        {
-            (value.authUser) ?
-                <>
-                    <Navbar.Text>Welcome back, {value.authUser.name}! </Navbar.Text>
-                    <Nav.Link as={NavLink} to={"/"} onClick={() => value.logoutUser() }>Log Out</Nav.Link>
-                </> :
-                <Nav className="float-right">
-                    <Nav.Link as={NavLink} to="/login">Log In</Nav.Link>
-                </Nav>
-        }
+
+            {value.authUser && <Navbar.Text>Welcome back, {value.authUser.name}! </Navbar.Text>}
+
+            <Button variant="secondary" as={NavLink}
+                    to={value.authUser ? "/" : "/login"}
+                    onClick={() => clickHandler()}>
+                {value.authUser ? "Log Out" : "Log In"}
+            </Button>
         </Navbar.Collapse>
     </Navbar>;
 }

@@ -1,17 +1,24 @@
 import React, {useEffect, useState} from 'react';
 import API from '../api/API';
-import {Container, Table} from 'react-bootstrap';
+import {Alert, Container, Table} from 'react-bootstrap';
 import {Redirect} from "react-router";
 import moment from 'moment';
 
 function PastRentalsTable(props){
     const [rentals, setRentals] = useState([]);
+    const [error, setError] = useState(undefined);
 
     useEffect(() => {
         API.getPastRentals()
             .then( (rentals) => setRentals(rentals))
-            .catch( () => {} );
+            .catch( (err) => {
+                props.value.handleErrors(err);
+                setError(err.errObj.errors[0])
+            } );
     }, []);
+
+    if(error)
+        return <Alert variant= "danger">{error.msg}</Alert>;
 
     return <Container fluid>
         {props.value.authErr && <Redirect to = "/login"/>}

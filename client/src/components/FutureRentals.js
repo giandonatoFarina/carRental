@@ -1,12 +1,14 @@
 import React, {useEffect, useState} from 'react';
 import API from '../api/API';
-import {Container, Table, Button} from 'react-bootstrap';
+import {Container, Table, Button, Alert} from 'react-bootstrap';
 import {Redirect} from "react-router";
 import moment from 'moment';
+import {Trash} from 'react-bootstrap-icons'
 
 function FutureRentalsTable(props){
     const [rentals, setRentals] = useState([]);
     const [update, setUpdate] = useState(false)
+    const [error, setError] = useState(undefined);
 
     useEffect(() => {
         API.getFutureRentals()
@@ -14,8 +16,14 @@ function FutureRentalsTable(props){
                 setRentals(rentals);
                 setUpdate(false);
             })
-            .catch( () => {} );
+            .catch( (err) => {
+                props.value.handleErrors(err);
+                setError(err.errObj.errors[0])
+            } );
     }, [update]);
+
+    if(error)
+        return <Alert variant= "danger">{error.msg}</Alert>;
 
     return <Container fluid>
         {props.value.authErr && <Redirect to = "/login"/>}
@@ -32,7 +40,7 @@ function FutureRentalsTable(props){
                 <th>Estimated km/day</th>
                 <th>Extra Drivers</th>
                 <th>Extra Insurance</th>
-
+                <th>Delete</th>
             </tr>
             </thead>
             <tbody>
@@ -45,10 +53,9 @@ function FutureRentalsTable(props){
 function RentalRow(props) {
 
     const deleteRental = () => {
-
         API.deleteRental(props.rental.cid, props.rental.startingDay)
             .then( () => props.update(true) )
-            .catch( () => {} );
+            .catch( (err) => {props.value.handleErrors(err)} );
     }
 
     return <tr>
@@ -63,7 +70,7 @@ function RentalRow(props) {
         <td>{props.rental.extraInsurance ? "yes" : "no"}</td>
         <td>
             <Button variant="secondary" onClick={ () => deleteRental()}>
-                Delete
+                <Trash color="white"/>
             </Button>
         </td>
     </tr>;

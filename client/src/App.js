@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import Cars from "./components/Cars";
 import MyNavbar from "./components/Navbar";
-import {Redirect, Route, Link} from 'react-router-dom';
+import {Route} from 'react-router-dom';
 import {Switch} from 'react-router';
 import API from "./api/API";
 import LoginPage from "./components/LoginPage";
@@ -10,9 +10,9 @@ import PastRentalsTable from "./components/PastRentals";
 import FutureRentalsTable from "./components/FutureRentals";
 
 function App(props) {
-    const [logged, setLogged] = useState(false);
     const [authUser, setAuthUser] = useState(undefined)
     const [authErr, setAuthErr] = useState(undefined);
+    const [logged , setLogged] = useState(false);
 
     const [categories, setCategories] = useState([]);
     const [brands, setBrands] = useState([]);
@@ -20,54 +20,59 @@ function App(props) {
     useEffect( () => {
         API.getCategories()
             .then( (categories) => setCategories(categories) )
-            .catch( (errorObj) => props.handleErrors(errorObj) );
+            .catch( (errorObj) => handleErrors(errorObj) );
         API.getBrands()
             .then( (brands) => setBrands(brands) )
-            .catch( (errorObj) => props.handleErrors(errorObj) );
+            .catch( (errorObj) => handleErrors(errorObj) );
     }, []);
 
     useEffect(() => {
         API.isAuthenticated()
             .then((user) => {
-                setAuthUser(user);
+                setAuthUser(user)
                 setLogged(true);
             })
-            .catch((err) => setAuthErr(err.errObj));
+            .catch((err) => setAuthErr(err.errObj.errors[0]));
     }, []);
 
     const login = (usr, pwd) => {
-        API.userLogin(usr, pwd).then(
-            (user) => {
+        API.userLogin(usr, pwd)
+            .then((user) => {
+                console.log(user);
                 setAuthUser(user);
-                setAuthErr(undefined)
-            }
-        ).catch(
-            (errorObj) => {
+                setAuthErr(undefined);
+                setLogged(true);
+            })
+            .catch((errorObj) => {
                 const err0 = errorObj.errors[0];
                 setAuthErr(err0);
-        });
+            });
     };
 
     const logout = () => {
         API.userLogout().then(() => {
-            setLogged(false);
             setAuthUser(undefined);
             setAuthErr(undefined);
+            setLogged(false);
         });
     };
 
     const handleErrors = (err) => {
-        if (err)
+        if (err) {
             if (err.status && err.status === 401)
-                setAuthErr(err.errObj);
+                setAuthErr(err.errObj.errors[0]);
+            if (err.status && err.status === 500)
+                err.errObj.errors[0].msg = "Internal Server Error"
+        }
     }
 
-
     const value = {
+        logged: logged,
         authUser: authUser,
         authErr: authErr,
         loginUser: login,
-        logoutUser: logout
+        logoutUser: logout,
+        handleErrors: handleErrors
     };
 
     return <>

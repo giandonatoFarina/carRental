@@ -6,9 +6,8 @@ async function isAuthenticated(){
     let url = baseURL + "/user";
     const response = await fetch(url);
     const userJson = await response.json();
-    if(response.ok){
-        return userJson;
-    } else {
+    if(response.ok)return userJson;
+    else {
         let err = {status: response.status, errObj: userJson};
         throw err;  // An object with the error coming from the server
     }
@@ -85,8 +84,6 @@ async  function getCategories() {
 }
 
 async function getAvailableCars(params) {
-    const distance = { "50": 0, "150": 1, "unlimited": 2};
-
     const response = await fetch(baseURL
         +"/configurator?category="+params.category
         +"&startingDay="+params.startingDay

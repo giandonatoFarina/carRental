@@ -18,7 +18,8 @@ class RentalForm extends React.Component {
             cars: undefined,
             price: undefined,
             carId: undefined,
-            showModal: false
+            showModal: false,
+            error: undefined
         };
     }
 
@@ -40,7 +41,7 @@ class RentalForm extends React.Component {
                 moment(this.state.endDay).isAfter(this.state.startingDay))
                     API.getAvailableCars(this.state)
                         .then((res) => this.setState({cars: res.cars, price: res.price, carId: res.carId.id}))
-                        .catch(() => this.setState({cars: undefined, price: undefined, carId: undefined}));
+                        .catch((err) => this.setState({cars: undefined, price: undefined, carId: undefined}));
             else this.setState({cars: undefined, price: undefined, carId: undefined});
         });
     }
@@ -114,6 +115,7 @@ class RentalForm extends React.Component {
                     </Col>
                 </Form.Row>
             </Form>
+
             <MyModal show={this.state.showModal}
                      handleShow={this.handleShow}
                      rentalData={this.state}/>
