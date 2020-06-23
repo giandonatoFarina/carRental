@@ -16,31 +16,34 @@ function LoginPage(props) {
     if(value.logged)
         return <Redirect to="/newrental"/>
     return <>
-        <Container fluid>
-            <Row>
-                <Col>
-                    <h2 className="ui teal image header">
-                        <div className="content">Log In</div>
-                    </h2>
+        <Container fluid id="login">
+            <div id="loginForm">
+                <Row>
+                    <Col>
+                        <h2 className="ui teal image header">
+                            <div className="content">Log In</div>
+                        </h2>
 
-                    <Form method="POST" onSubmit={(event) => handleSubmit(event)}>
-                        <Form.Group controlId="username">
-                            <Form.Label>E-mail</Form.Label>
-                            <Form.Control type="email" name="email" placeholder="E-mail" value = {user} onChange={(ev) => setUser(ev.target.value)} required autoFocus/>
-                        </Form.Group>
+                        <Form method="POST" onSubmit={(event) => handleSubmit(event)}>
+                            <Form.Group controlId="username">
+                                <Form.Label>E-mail</Form.Label>
+                                <Form.Control type="email" name="email" placeholder="E-mail" value = {user} onChange={(ev) => setUser(ev.target.value)} required autoFocus/>
+                            </Form.Group>
 
-                        <Form.Group controlId="password">
-                            <Form.Label>Password</Form.Label>
-                            <Form.Control type="password" name="password" placeholder="Password" value = {pwd} onChange={(ev) => setPwd(ev.target.value)} required/>
-                        </Form.Group>
+                            <Form.Group controlId="password">
+                                <Form.Label>Password</Form.Label>
+                                <Form.Control type="password" name="password" placeholder="Password" value = {pwd} onChange={(ev) => setPwd(ev.target.value)} required/>
+                            </Form.Group>
 
-                        <Button variant="primary" type="submit">Login</Button>
-                    </Form>
-                    {value.authErr &&
-                        <Alert variant= "danger">{value.authErr.msg}</Alert>
-                    }
-                </Col>
-            </Row>
+                            <Button variant="dark" type="submit">Login</Button>
+                        </Form>
+
+                    </Col>
+                </Row>
+            </div>
+            {value.authErr &&
+                <Alert id="alert" variant= "danger">{value.authErr.msg}</Alert>
+            }
         </Container>
     </>
 }

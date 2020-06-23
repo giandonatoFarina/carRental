@@ -47,21 +47,21 @@ class RentalForm extends React.Component {
     }
 
     render() {
-        return <Container fluid>
+        return <Container fluid id="newRental">
             {this.props.value.authErr && <Redirect to = "/login"/>}
 
             <Form method="POST" onSubmit={ (event) => this.handleSubmit(event)}>
-                <Form.Row style={{marginTop: 10}}>
+                <Form.Row>
                     <Col>
                         <Form.Label>Starting Day</Form.Label>
-                        <Form.Control type="date" name="startingDay"
+                        <Form.Control type="date" name="startingDay" required
                                       min={moment().format("YYYY-MM-DD")}
                                       value={this.state.startingDay}
                                       onChange={(ev) => this.updateField(ev.target.name, ev.target.value)}/>
                     </Col>
                     <Col>
                         <Form.Label>End Day</Form.Label>
-                        <Form.Control type="date" name="endDay"
+                        <Form.Control type="date" name="endDay" required
                                       min={moment().add(1, 'd').format("YYYY-MM-DD")}
                                       value={this.state.endDay}
                                       onChange={(ev) => this.updateField(ev.target.name, ev.target.value)}/>
@@ -91,7 +91,7 @@ class RentalForm extends React.Component {
                     </Col>
                     <Col>
                         <Form.Label>Extra Drivers</Form.Label>
-                        <Form.Control type="number" name="extraDrivers" min="0"
+                        <Form.Control type="number" name="extraDrivers" min="0" required
                                       value={this.state.extraDrivers}
                                       onChange={(ev) => this.updateField(ev.target.name, ev.target.value)}/>
                     </Col>
@@ -111,7 +111,7 @@ class RentalForm extends React.Component {
                         <h5>Price: {this.state.price ? this.state.price : "-"} €</h5>
                     </Col>
                     <Col>
-                        <Button className="float-right" type="submit">Rent</Button>
+                        <Button variant="dark" className="float-right" type="submit">Rent</Button>
                     </Col>
                 </Form.Row>
             </Form>
