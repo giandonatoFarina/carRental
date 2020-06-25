@@ -38,7 +38,6 @@ function App(props) {
     const login = (usr, pwd) => {
         API.userLogin(usr, pwd)
             .then((user) => {
-                console.log(user);
                 setAuthUser(user);
                 setAuthErr(undefined);
                 setLogged(true);

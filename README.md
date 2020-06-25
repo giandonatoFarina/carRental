@@ -1,5 +1,5 @@
-# Exam #12345: "Exam Title"
-## Student: s123456 LASTNAME FIRSTNAME 
+# Exam #1: "Noleggio Veicoli"
+## Student: s270264 FARINA GIANDONATO 
 
 ## React client application routes
 
@@ -36,12 +36,12 @@
 
 ## Screenshot
 
-![Configurator Screenshot](./img/screenshot.jpg)
+![Configurator Screenshot](./img/screenshot.png)
 
 ## Test users
 
-* username, password
-* username, password
-* username, password (frequent customer)
-* username, password
-* username, password (frequent customer)
+* luke.skywalker@email.com, password
+* john.smith@email.com, newyork
+* james.holden@email.com, rocinante (frequent customer)
+* tony.stark@email.com, jarvis
+* james.bond@email.com, 007 (frequent customer)

@@ -108,10 +108,11 @@ class RentalForm extends React.Component {
                         <h5>Available cars: {this.state.cars ? this.state.cars : "-"}</h5>
                     </Col>
                     <Col>
-                        <h5>Price: {this.state.price ? this.state.price : "-"} €</h5>
+                        <h5>Price: {this.state.price ? this.state.price.toFixed(2) : "-"} €</h5>
                     </Col>
                     <Col>
-                        <Button variant="dark" className="float-right" type="submit">Rent</Button>
+                        <Button variant="dark" className="float-right" type="submit"
+                                disabled={!this.state.cars}>Rent</Button>
                     </Col>
                 </Form.Row>
             </Form>
@@ -160,7 +161,7 @@ function PaymentForm(props) {
     };
 
     if(submitted)
-        return <Redirect to="/futuresrentals"/>;
+        return <Redirect to="/futurerentals"/>;
 
     return <Form method="POST" onSubmit={ (event) => handleSubmit(event)}>
         <Modal.Body>
