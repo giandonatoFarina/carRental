@@ -20,7 +20,7 @@ function FutureRentalsTable(props){
                 props.value.handleErrors(err);
                 setError(err.errObj.errors[0])
             } );
-    }, [update]);
+    }, [update, props.value]);
 
     if(error)
         return <Alert variant= "danger">{error.msg}</Alert>;

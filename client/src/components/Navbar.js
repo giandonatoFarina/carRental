@@ -25,7 +25,7 @@ function MyNavbar(props) {
 
             {value.authUser && <Navbar.Text>Welcome back, {value.authUser.name}! </Navbar.Text>}
 
-            <Button variant="secondary" as={NavLink}
+            <Button variant="secondary" as={NavLink} style={{marginLeft: 10}}
                     to={value.authUser ? "/" : "/login"}
                     onClick={() => clickHandler()}>
                 {value.authUser ? "Log Out" : "Log In"}
