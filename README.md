@@ -1,6 +1,29 @@
 # Exam #1: "Noleggio Veicoli"
 ## Student: s270264 FARINA GIANDONATO 
 
+## Setup
+
+Install node: https://nodejs.org/en/download/package-manager/ <br>
+Clone this repo:
+  ```
+  git clone https://github.com/giandonatoFarina/carRental.git
+  cd carRental
+  ```
+  ### Server
+  To install and start the server use the following commands:
+  ```
+  cd server
+  npm install
+  node server.js
+  ```
+  ### Client
+  To install and start the client use the following commands:
+  ```
+  cd client 
+  npm install
+  npm start
+  ```
+
 ## React client application routes
 
 - Route `/`: list of all vehicles with interactive filters
